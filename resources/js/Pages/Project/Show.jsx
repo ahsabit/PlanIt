@@ -1,40 +1,84 @@
-import Pagination from '@/Components/Pagination';
-import SelectInput from '@/Components/SelectInput';
-import TextInput from '@/Components/TextInput';
-import { TASK_STATUS_CLASS_MAP, TASK_STATUS_TEXT_MAP } from '@/constant';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { PROJECT_STATUS_CLASS_MAP, PROJECT_STATUS_TEXT_MAP, TASK_STATUS_CLASS_MAP, TASK_STATUS_TEXT_MAP } from '@/constant';
 import TableHeadings from '@/Components/TableHeadings';
-
-export default function Index({ auth, tasks, queryParams}) {
+import TextInput from '@/Components/TextInput';
+import SelectInput from '@/Components/SelectInput';
+import Pagination from '@/Components/Pagination';
+export default function Show({project, auth, queryParams, tasks}) {
     queryParams = queryParams || {};
-    const searchFieldChanged = (name, value) => {
-        if(value){
-            queryParams[name] = value;
-        }else{
-            delete queryParams[name];
-        }
-
-        router.get(route('tasks.index', queryParams));
-    };
-
-    const onKeyPress = (name, event) => {
-        if(event.key === 'Enter'){
-            searchFieldChanged(name, event.target.value);
-        }
-    }
-
+    project = project['data'];
     return (
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Tasks
+                    {`Project: ${project.name}`}
                 </h2>
             }
         >
+            <Head title={`Project: ${project.name}`} />
 
-            <Head title="Tasks" />
-
+            <div className="py-12">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                        <div>
+                            <img className="w-full h-72 object-cover" src={project.image_path} alt="Project Image" />
+                        </div>
+                        <div className="p-6 overflow-auto text-gray-900 dark:text-gray-100">
+                            <div>
+                                <div className="grid gap-1 grid-cols-2 mt-2">
+                                    <div>
+                                        <div>
+                                            <label className="font-bold text-lg">Project ID</label>
+                                            <p className="my-1">{project.id}</p>
+                                        </div>
+                                        <div>
+                                            <label className="font-bold text-lg">Project Status</label>
+                                            <p className={"px-2 py-1 my-1 w-fit text-white rounded " + PROJECT_STATUS_CLASS_MAP[project.status]}>{PROJECT_STATUS_TEXT_MAP[project.status]}</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div>
+                                            <label className="font-bold text-lg">Project Name</label>
+                                            <p className="my-1">{project.name}</p>
+                                        </div>
+                                        <div>
+                                            <label className="font-bold text-lg">Created By</label>
+                                            <p className="my-1">{project.created_by.name}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="grid gap-1 grid-cols-2 mt-2">
+                                    <div>
+                                        <div>
+                                            <label className="font-bold text-lg">Due Date</label>
+                                            <p className="my-1">{project.due_date}</p>
+                                        </div>
+                                        <div>
+                                            <label className="font-bold text-lg">Created At</label>
+                                            <p className="my-1">{project.created_at}</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div>
+                                            <label className="font-bold text-lg">Updated At</label>
+                                            <p className="my-1">{project.updated_at}</p>
+                                        </div>
+                                        <div>
+                                            <label className="font-bold text-lg">Updated By</label>
+                                            <p className="my-1">{project.updated_by.name}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-3">
+                                <label className="font-bold text-lg">Project Description</label>
+                                <p className="my-1">{project.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
@@ -45,7 +89,6 @@ export default function Index({ auth, tasks, queryParams}) {
                                         <TableHeadings page="tasks" name="id" queryParams={queryParams} sortable={true}>ID</TableHeadings>
                                         <TableHeadings page="tasks">Image</TableHeadings>
                                         <TableHeadings page="tasks" name="name" queryParams={queryParams} sortable={true}>Name</TableHeadings>
-                                        <TableHeadings page="tasks">Project Name</TableHeadings>
                                         <TableHeadings page="tasks">Status</TableHeadings>
                                         <TableHeadings page="tasks" name="created_at" queryParams={queryParams} sortable={true}>Created At</TableHeadings>
                                         <TableHeadings page="tasks" name="due_date" queryParams={queryParams} sortable={true}>Due Date</TableHeadings>
@@ -60,7 +103,6 @@ export default function Index({ auth, tasks, queryParams}) {
                                         <th scope="col" className="px-6 py-3">
                                             <TextInput defaultValue={queryParams.name} placeholder="Search by name" className="text-xs w-full" onBlur={(e) => searchFieldChanged('name', e.target.value)} onKeyPress={(e) => onKeyPress('name', e)}/>
                                         </th>
-                                        <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3">
                                             <SelectInput defaultValue={queryParams.status} className="text-xs w-full" onChange={(e) => searchFieldChanged('status', e.target.value)}>
                                                 <option value="">Select Status</option>
@@ -82,7 +124,6 @@ export default function Index({ auth, tasks, queryParams}) {
                                                 <th className="px-6 py-3">{task.id}</th>
                                                 <td className="px-6 py-3"><img src={task.image} className="w-10 h-10" /></td>
                                                 <td className="px-6 py-3">{task.name}</td>
-                                                <td className="px-6 py-3">{task.project.name}</td>
                                                 <td className="px-6 py-3">
                                                     <span className={"px-2 py-1 text-white rounded " + TASK_STATUS_CLASS_MAP[task.status]}>{TASK_STATUS_TEXT_MAP[task.status]}</span>
                                                 </td>
@@ -103,7 +144,6 @@ export default function Index({ auth, tasks, queryParams}) {
                     </div>
                 </div>
             </div>
-
         </AuthenticatedLayout>
     );
 }

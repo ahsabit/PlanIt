@@ -1,24 +1,28 @@
 import { ChevronUpIcon, ChevronDownIcon} from '@heroicons/react/16/solid';
 import { router } from '@inertiajs/react';
 
-export default function TableSortLink({ name=null, children, queryParams=null, sortable=false }) {
+export default function TableSortLink({ page, name=null, children, queryParams=null, sortable=false }) {
     const sortChange = (field) => {
-        if (queryParams.sort_field === field) {
-            if (queryParams.sort_direction === 'asc') {
-                queryParams.sort_direction = 'desc';
+        const params = queryParams || {};
+        if(!field || !params || params == {}){return;}
+        if (params.sort_field === field) {
+            if (params.sort_direction === 'asc') {
+                params.sort_direction = 'desc';
             }else{
-                queryParams.sort_direction = 'asc';
+                params.sort_direction = 'asc';
             }
         }else{
-            queryParams.sort_field = field;
-            queryParams.sort_direction = 'asc';
+            params.sort_field = field;
+            params.sort_direction = 'asc';
         }
+
+        const realPage = page + '.index';
     
-        router.get(route('projects.index', queryParams));
+        router.get(route(realPage, params));
     }
 
     return (
-        <th  onClick={() => sortChange(name)} scope="col" className="table-cell cursor-pointer px-6 py-3">
+        <th onClick={sortable ? () => sortChange(name) : () => sortChange(null) } scope="col" className="table-cell cursor-pointer px-6 py-3">
             <div className="flex items-center justify-between gap-1">
                 {children}
                 {sortable && (

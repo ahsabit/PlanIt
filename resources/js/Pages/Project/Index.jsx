@@ -42,14 +42,14 @@ export default function Index({ auth, projects, queryParams}) {
                             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead className="border-gray-500 border-b-2 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
-                                        <TableHeadings name="id" queryParams={queryParams} sortable={true}>ID</TableHeadings>
-                                        <TableHeadings>Image</TableHeadings>
-                                        <TableHeadings name="name" queryParams={queryParams} sortable={true}>Name</TableHeadings>
-                                        <TableHeadings>Status</TableHeadings>
-                                        <TableHeadings name="created_at" queryParams={queryParams} sortable={true}>Created At</TableHeadings>
-                                        <TableHeadings name="due_date" queryParams={queryParams} sortable={true}>Due Date</TableHeadings>
-                                        <TableHeadings name="created_by" queryParams={queryParams} sortable={true}>Created By</TableHeadings>
-                                        <TableHeadings>Action</TableHeadings>
+                                        <TableHeadings page="projects" name="id" queryParams={queryParams} sortable={true}>ID</TableHeadings>
+                                        <TableHeadings page="projects">Image</TableHeadings>
+                                        <TableHeadings page="projects" name="name" queryParams={queryParams} sortable={true}>Name</TableHeadings>
+                                        <TableHeadings page="projects">Status</TableHeadings>
+                                        <TableHeadings page="projects" name="created_at" queryParams={queryParams} sortable={true}>Created At</TableHeadings>
+                                        <TableHeadings page="projects" name="due_date" queryParams={queryParams} sortable={true}>Due Date</TableHeadings>
+                                        <TableHeadings page="projects" name="created_by" queryParams={queryParams} sortable={true}>Created By</TableHeadings>
+                                        <TableHeadings page="projects">Action</TableHeadings>
                                     </tr>
                                 </thead>
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -79,7 +79,9 @@ export default function Index({ auth, projects, queryParams}) {
                                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={project.id}>
                                                 <th className="px-6 py-3">{project.id}</th>
                                                 <td className="px-6 py-3"><img src={project.image} className="w-10 h-10" /></td>
-                                                <td className="px-6 py-3">{project.name}</td>
+                                                <td className="px-6 py-3">
+                                                    <Link className="text-white hover:underline" href={route('projects.show', project.id)}>{project.name}</Link>
+                                                </td>
                                                 <td className="px-6 py-3">
                                                     <span className={"px-2 py-1 text-white rounded " + PROJECT_STATUS_CLASS_MAP[project.status]}>{PROJECT_STATUS_TEXT_MAP[project.status]}</span>
                                                 </td>
