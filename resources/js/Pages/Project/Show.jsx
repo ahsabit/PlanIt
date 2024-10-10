@@ -114,7 +114,9 @@ export default function Show({project, auth, queryParams, tasks}) {
                                         <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3"></th>
-                                        <th scope="col" className="px-6 py-3"></th>
+                                        <th scope="col" className="px-6 py-3">
+                                            <Link href={route('tasks.create', project.id)} className="font-medium text-green-600 dark:text-green-500 hover:underline mr-2 capitalize">Add Task</Link>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -6,7 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import TableHeadings from '@/Components/TableHeadings';
 
-export default function Index({ auth, projects, queryParams}) {
+export default function Index({ auth, projects, queryParams, success}) {
     queryParams = queryParams || {};
     const searchFieldChanged = (name, value) => {
         if(value){
@@ -24,12 +24,23 @@ export default function Index({ auth, projects, queryParams}) {
         }
     }
 
+    const deleteProject = (id) => {
+        if (confirm('Are you sure you want to delete this project?')) {
+            router.delete(route('projects.destroy', id));
+        }
+    };
+
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Projects
-                </h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                        Projects
+                    </h2>
+                    <Link className="bg-emerald-500 py-1 px-3 text-white rounded shadow transition-all hover:bg-emerald-600" href={route('projects.create')}>
+                        Add New
+                    </Link>
+                </div>
             }
         >
 
@@ -38,6 +49,7 @@ export default function Index({ auth, projects, queryParams}) {
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                        {success && <div className="bg-green-700 text-white px-6 py-4">{success}</div>}
                         <div className="p-6 overflow-auto text-gray-900 dark:text-gray-100">
                             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead className="border-gray-500 border-b-2 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -78,7 +90,7 @@ export default function Index({ auth, projects, queryParams}) {
                                         return (
                                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={project.id}>
                                                 <th className="px-6 py-3">{project.id}</th>
-                                                <td className="px-6 py-3"><img src={project.image} className="w-10 h-10" /></td>
+                                                <td className="px-6 py-3"><img src={project.image_path} className="w-10 h-10" /></td>
                                                 <td className="px-6 py-3">
                                                     <Link className="text-white hover:underline" href={route('projects.show', project.id)}>{project.name}</Link>
                                                 </td>
@@ -90,7 +102,7 @@ export default function Index({ auth, projects, queryParams}) {
                                                 <td className="px-6 py-3">{project.created_by.name}</td>
                                                 <td className="px-6 py-3">
                                                     <Link href={route('projects.edit', project.id)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2">Edit</Link>
-                                                    <Link href={route('projects.destroy', project.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline mr-2">Delete</Link>
+                                                    <button onClick={() => deleteProject(project.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline mr-2">Delete</button>
                                                 </td>
                                             </tr>
                                         );

@@ -6,9 +6,12 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Project;
 use App\Models\Task;
 use Inertia\Inertia;
+use Storage;
+use Str;
 
 class ProjectController extends Controller
 {
@@ -37,6 +40,7 @@ class ProjectController extends Controller
             return Inertia::render('Project/Index', [
                 'projects' => ProjectResource::collection($projects),
                 'queryParams' => request()->query() ?: null,
+                'success' => session('success'),                
             ]);
         }
 
@@ -45,7 +49,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Project/Create');
     }
 
     /**
@@ -53,7 +57,18 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        //
+        $data = $request->validated();
+        $image = $data['image'] ?? null;
+        $data['created_by'] = Auth::id();
+        $data['updated_by'] = Auth::id();
+        if($image){
+            $data['image_path'] = $image->store('projects/'.Str::random(16), 'public');
+        }else{
+            $data['image_path'] = null;
+        }
+        Project::create($data);
+        
+        return redirect()->route('projects.index')->with('success', 'Project created successfully');
     }
 
     /**
@@ -90,7 +105,9 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return Inertia::render('Project/Edit', [
+            'project' => new ProjectResource($project),
+        ]);
     }
 
     /**
@@ -98,7 +115,30 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        //
+        dd($request);
+        // Validate and retrieve the validated data from the request
+        $data = $request->validated();
+
+        // Get the image from the validated data or set it to null
+        $image = $data['image'] ?? null;
+        
+        // Set the ID of the user making the update
+        $data['updated_by'] = Auth::id();
+
+        // If an image is provided, store it and set the path
+        if ($image) {
+            // Store the image in a unique subdirectory and get the path
+            $data['image_path'] = $image->store('projects/' . Str::random(16), 'public');
+        } else {
+            // If no new image is uploaded, retain the old image path
+            $data['image_path'] = $project->image_path;
+        }
+
+        // Update the project with the validated data
+        $project->update($data);
+
+        // Redirect back with a success message
+        return redirect()->route('projects.index')->with('success', 'Project updated successfully');
     }
 
     /**
@@ -106,6 +146,11 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        $name = $project->name;
+        if (Storage::disk('public')->exists($project->image_path)) {
+            Storage::disk('public')->delete($project->image_path);
+        }
+        $project->delete();
+        return redirect()->route('projects.index')->with('success', 'Project "'.$name.'" deleted successfully');
     }
 }
