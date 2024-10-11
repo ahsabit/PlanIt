@@ -35,7 +35,7 @@ export default function Create() {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                         <div className="p-6 overflow-auto text-gray-900 dark:text-gray-100">
-                            <form onSubmit={onSubmit}>
+                            <form onSubmit={(e) => onSubmit(e)}>
                                 <div className="mt-4">
                                     <InputLabel htmlFor="image" value="Image" />
 

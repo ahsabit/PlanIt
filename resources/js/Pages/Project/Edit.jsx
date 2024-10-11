@@ -6,37 +6,37 @@ import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Create({ project }) {
+export default function Edit({ project}) {
     project = project['data'];
     const { data, setData, put, reset, errors } = useForm({
         image: '',
-        name: project.name || '',
-        status: project.status || '',
-        description: project.description || '',
-        due_date: project.due_date || '',
+        image_path: project.image_path ||'',
+        name: project.name ||'',
+        status: project.status ||'',
+        description: project.description ||'',
+        due_date: project.due_date ||'',
     });
 
-    const onSubmit = (e) => {
+    const onSubmit = (e, id) => {
         e.preventDefault();
-        put(route('projects.update', project.id));
+        put(route('projects.update', id));
     };
 
     return (
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Create Project
+                    {`Edit Project: ${project.name}`}
                 </h2>
             }
         >
-            <Head title="Create Project" />
-
+            <Head title={`Edit Project: ${project.name}`} />
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                         <div className="p-6 overflow-auto text-gray-900 dark:text-gray-100">
-                            <form onSubmit={onSubmit}>
+                            <form onSubmit={(e) => onSubmit(e, project.id)}>
                                 <div className="mt-4">
                                     <InputLabel htmlFor="image" value="Image" />
 
@@ -46,7 +46,6 @@ export default function Create({ project }) {
                                         name="image"
                                         className="mt-1 block w-full"
                                         onChange={(e) => setData('image', e.target.files[0])}
-                                        required
                                     />
 
                                     <InputError message={errors.image} className="mt-2" />
@@ -76,7 +75,6 @@ export default function Create({ project }) {
                                         <option value="in_progress">In Progress</option>
                                         <option value="completed">Completed</option>
                                     </SelectInput>
-
                                     <InputError message={errors.status} className="mt-2" />
                                 </div>
                                 <div className="mt-4">
@@ -102,7 +100,7 @@ export default function Create({ project }) {
                                     <InputError message={errors.description} className="mt-2" />
                                 </div>
                                 <div className="flex justify-end">
-                                    <TextInput type="submit" value="Update" className="mt-4 py-2 px-4 mr-1 !bg-green-800" />
+                                    <TextInput type="submit" value="Create" className="mt-4 py-2 px-4 mr-1 !bg-green-800" />
                                     <TextInput type="button" onClick={() => reset()} value="Reset" className="mt-4 py-2 px-4 ml-1 !bg-red-800" />
                                     <Link href={route("projects.index")} className="mt-4 py-2 px-4 ml-1 bg-blue-800 rounded-md">Cancel</Link>
                                 </div>
