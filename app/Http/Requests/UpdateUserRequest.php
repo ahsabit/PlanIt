@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
+use Hash;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest
@@ -11,7 +13,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +23,20 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $userId = $this->route('user')->id;
+        $userToUpdate = User::findOrFail($userId);
+
         return [
-            //
+            'name' => ['string', 'max:255', 'required'],
+            'email' => ['string', 'email', 'max:255', 'required'],
+            'password' => ['string', 'min:8', 'required', 'confirmed'],
+            'current_password' => [ 'required', 
+                function ($attribute, $value, $fail) use ($userToUpdate) {
+                    if (!Hash::check($value, $userToUpdate->password)) {
+                        $fail('The current password is incorrect.');
+                    }
+                }
+            ],
         ];
     }
 }

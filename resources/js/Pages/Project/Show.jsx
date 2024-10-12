@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link , router} from '@inertiajs/react';
 import { PROJECT_STATUS_CLASS_MAP, PROJECT_STATUS_TEXT_MAP, TASK_STATUS_CLASS_MAP, TASK_STATUS_TEXT_MAP } from '@/constant';
 import TableHeadings from '@/Components/TableHeadings';
 import TextInput from '@/Components/TextInput';
@@ -8,6 +8,23 @@ import Pagination from '@/Components/Pagination';
 export default function Show({project, auth, queryParams, tasks}) {
     queryParams = queryParams || {};
     project = project['data'];
+    queryParams['project'] = project.id;
+
+    const searchFieldChanged = (name, value) => {
+        if(value){
+            queryParams[name] = value;
+        }else{
+            delete queryParams[name];
+        }
+
+        router.get(route('projects.show', queryParams));
+    };
+
+    const onKeyPress = (name, event) => {
+        if(event.key === 'Enter'){
+            searchFieldChanged(name, event.target.value);
+        }
+    }
     return (
         <AuthenticatedLayout
             header={
@@ -86,14 +103,14 @@ export default function Show({project, auth, queryParams, tasks}) {
                             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead className="border-gray-500 border-b-2 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
-                                        <TableHeadings page="tasks" name="id" queryParams={queryParams} sortable={true}>ID</TableHeadings>
-                                        <TableHeadings page="tasks">Image</TableHeadings>
-                                        <TableHeadings page="tasks" name="name" queryParams={queryParams} sortable={true}>Name</TableHeadings>
-                                        <TableHeadings page="tasks">Status</TableHeadings>
-                                        <TableHeadings page="tasks" name="created_at" queryParams={queryParams} sortable={true}>Created At</TableHeadings>
-                                        <TableHeadings page="tasks" name="due_date" queryParams={queryParams} sortable={true}>Due Date</TableHeadings>
-                                        <TableHeadings page="tasks" name="created_by" queryParams={queryParams} sortable={true}>Created By</TableHeadings>
-                                        <TableHeadings page="tasks">Action</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'} name="id" queryParams={queryParams} sortable={true}>ID</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'}>Image</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'} name="name" queryParams={queryParams} sortable={true}>Name</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'}>Status</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'} name="created_at" queryParams={queryParams} sortable={true}>Created At</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'} name="due_date" queryParams={queryParams} sortable={true}>Due Date</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'} name="created_by" queryParams={queryParams} sortable={true}>Created By</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'}>Action</TableHeadings>
                                     </tr>
                                 </thead>
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

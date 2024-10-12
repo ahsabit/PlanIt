@@ -1,7 +1,7 @@
 import { ChevronUpIcon, ChevronDownIcon} from '@heroicons/react/16/solid';
 import { router } from '@inertiajs/react';
 
-export default function TableSortLink({ page, name=null, children, queryParams=null, sortable=false }) {
+export default function TableSortLink({ page, uri=null, name=null, children, queryParams=null, sortable=false }) {
     const sortChange = (field) => {
         const params = queryParams || {};
         if(!field || !params || params == {}){return;}
@@ -16,7 +16,11 @@ export default function TableSortLink({ page, name=null, children, queryParams=n
             params.sort_direction = 'asc';
         }
 
-        const realPage = page + '.index';
+        if (uri) {
+            var realPage = page + '.' + uri;
+        } else {
+            var realPage = page + '.index';
+        }
     
         router.get(route(realPage, params));
     }
