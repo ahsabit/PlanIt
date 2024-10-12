@@ -120,9 +120,11 @@ class ProjectController extends Controller
         $data['updated_by'] = Auth::id();
 
         if ($image) {
-            if($project->image_path){
-                if (Storage::disk('public')->exists($project->image_path)) {
-                    Storage::disk('public')->delete($project->image_path);
+            if (Storage::disk('public')->exists($project->image_path)) {
+                $dirName = dirname($project->image_path);
+                Storage::disk('public')->delete($project->image_path);
+                if ($dirName) {
+                    Storage::disk('public')->deleteDirectory($dirName);
                 }
             }
             $data['image_path'] = $image->store('projects/' . Str::random(16), 'public');
@@ -141,9 +143,14 @@ class ProjectController extends Controller
         $name = $project->name;
         if($project->image_path){
             if (Storage::disk('public')->exists($project->image_path)) {
+                $dirName = dirname($project->image_path);
                 Storage::disk('public')->delete($project->image_path);
+                if ($dirName) {
+                    Storage::disk('public')->deleteDirectory($dirName);
+                }
             }
         }
+        $project->tasks()->delete();
         $project->delete();
         return redirect()->route('projects.index')->with('success', 'Project "'.$name.'" deleted successfully');
     }

@@ -8,18 +8,19 @@ import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Edit({ project}) {
     project = project['data'];
-    const { data, setData, put, reset, errors } = useForm({
+    const { data, setData, post, reset, errors } = useForm({
         image: '',
         image_path: project.image_path ||'',
         name: project.name ||'',
         status: project.status ||'',
         description: project.description ||'',
         due_date: project.due_date ||'',
+        _method: 'PUT',
     });
 
     const onSubmit = (e, id) => {
         e.preventDefault();
-        put(route('projects.update', id));
+        post(route('projects.update', id));
     };
 
     return (
@@ -100,7 +101,7 @@ export default function Edit({ project}) {
                                     <InputError message={errors.description} className="mt-2" />
                                 </div>
                                 <div className="flex justify-end">
-                                    <TextInput type="submit" value="Create" className="mt-4 py-2 px-4 mr-1 !bg-green-800" />
+                                    <TextInput type="submit" value="Update" className="mt-4 py-2 px-4 mr-1 !bg-green-800" />
                                     <TextInput type="button" onClick={() => reset()} value="Reset" className="mt-4 py-2 px-4 ml-1 !bg-red-800" />
                                     <Link href={route("projects.index")} className="mt-4 py-2 px-4 ml-1 bg-blue-800 rounded-md">Cancel</Link>
                                 </div>
