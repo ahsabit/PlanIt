@@ -40,7 +40,7 @@ class ProjectController extends Controller
             return Inertia::render('Project/Index', [
                 'projects' => ProjectResource::collection($projects),
                 'queryParams' => request()->query() ?: null,
-                'success' => session('success'),                
+                'success' => session('success'),
             ]);
         }
 
@@ -66,8 +66,9 @@ class ProjectController extends Controller
         }else{
             $data['image_path'] = null;
         }
+        unset($data['image']);
         Project::create($data);
-        
+
         return redirect()->route('projects.index')->with('success', 'Project created successfully');
     }
 

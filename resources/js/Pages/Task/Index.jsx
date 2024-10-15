@@ -6,7 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import TableHeadings from '@/Components/TableHeadings';
 
-export default function Index({ auth, tasks, queryParams}) {
+export default function Index({ auth, tasks, queryParams, success}) {
     queryParams = queryParams || {};
     const searchFieldChanged = (name, value) => {
         if(value){
@@ -24,6 +24,12 @@ export default function Index({ auth, tasks, queryParams}) {
         }
     }
 
+    const deleteTask = (id) => {
+        if (confirm('Are you sure you want to delete this task?')) {
+            router.delete(route('tasks.destroy', id));
+        }
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -34,13 +40,14 @@ export default function Index({ auth, tasks, queryParams}) {
         >
 
             <Head title="Tasks" />
-
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+<pre>{success}</pre>
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                        {success && <div className="px-6 py-4 text-white bg-green-700">{success}</div>}
                         <div className="p-6 overflow-auto text-gray-900 dark:text-gray-100">
-                            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                <thead className="border-gray-500 border-b-2 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <table className="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
+                                <thead className="text-xs text-gray-700 uppercase border-b-2 border-gray-500 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
                                         <TableHeadings page="tasks" name="id" queryParams={queryParams} sortable={true}>ID</TableHeadings>
                                         <TableHeadings page="tasks">Image</TableHeadings>
@@ -58,11 +65,11 @@ export default function Index({ auth, tasks, queryParams}) {
                                         <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3">
-                                            <TextInput defaultValue={queryParams.name} placeholder="Search by name" className="text-xs w-full" onBlur={(e) => searchFieldChanged('name', e.target.value)} onKeyPress={(e) => onKeyPress('name', e)}/>
+                                            <TextInput defaultValue={queryParams.name} placeholder="Search by name" className="w-full text-xs" onBlur={(e) => searchFieldChanged('name', e.target.value)} onKeyPress={(e) => onKeyPress('name', e)}/>
                                         </th>
                                         <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3">
-                                            <SelectInput defaultValue={queryParams.status} className="text-xs w-full" onChange={(e) => searchFieldChanged('status', e.target.value)}>
+                                            <SelectInput defaultValue={queryParams.status} className="w-full text-xs" onChange={(e) => searchFieldChanged('status', e.target.value)}>
                                                 <option value="">Select Status</option>
                                                 <option value="pending">Pending</option>
                                                 <option value="in_progress">In Progress</option>
@@ -80,7 +87,7 @@ export default function Index({ auth, tasks, queryParams}) {
                                         return (
                                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={task.id}>
                                                 <th className="px-6 py-3">{task.id}</th>
-                                                <td className="px-6 py-3"><img src={task.image} className="w-10 h-10" /></td>
+                                                <td className="px-6 py-3"><img src={task.image_path} className="w-10 h-10" /></td>
                                                 <td className="px-6 py-3">{task.name}</td>
                                                 <td className="px-6 py-3">{task.project.name}</td>
                                                 <td className="px-6 py-3">
@@ -90,8 +97,8 @@ export default function Index({ auth, tasks, queryParams}) {
                                                 <td className="px-6 py-3 text-nowrap">{task.due_date}</td>
                                                 <td className="px-6 py-3">{task.created_by.name}</td>
                                                 <td className="px-6 py-3">
-                                                    <Link href={route('tasks.edit', task.id)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2">Edit</Link>
-                                                    <Link href={route('tasks.destroy', task.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline mr-2">Delete</Link>
+                                                    <Link href={route('tasks.edit', task.id)} className="mr-2 font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</Link>
+                                                    <button onClick={() => deleteTask(task.id)} className="mr-2 font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
                                                 </td>
                                             </tr>
                                         );

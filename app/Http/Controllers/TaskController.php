@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
 use Inertia\Inertia;
+use Storage;
+use Str;
 
 class TaskController extends Controller
 {
@@ -43,7 +46,10 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        $projectId = request('project') ?? null;
+        return Inertia::render('Task/Create', [
+            'project_id' => $projectId
+        ]);
     }
 
     /**
@@ -51,7 +57,19 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
-        //
+        $data = $request->validated();
+        $image = $data['image'] ?? null;
+        $data['created_by'] = Auth::id();
+        $data['updated_by'] = Auth::id();
+        if($image){
+            $data['image_path'] = $image->store('tasks/'.Str::random(16), 'public');
+        }else{
+            $data['image_path'] = null;
+        }
+        unset($data['image']);
+        Task::create($data);
+
+        return redirect()->route('tasks.index')->with('success', 'Task created successfully');
     }
 
     /**
@@ -83,6 +101,17 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        //
+        $name = $task->name;
+        if($task->image_path){
+            if (Storage::disk('public')->exists($task->image_path)) {
+                $dirName = dirname($task->image_path);
+                Storage::disk('public')->delete($task->image_path);
+                if ($dirName) {
+                    Storage::disk('public')->deleteDirectory($dirName);
+                }
+            }
+        }
+        $task->delete();
+        return redirect()->route('tasks.index')->with('success', 'Task "'.$name.'" deleted successfully');
     }
 }
