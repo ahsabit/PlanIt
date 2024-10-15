@@ -87,8 +87,12 @@ export default function Index({ auth, tasks, queryParams, success}) {
                                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={task.id}>
                                                 <th className="px-6 py-3">{task.id}</th>
                                                 <td className="px-6 py-3"><img src={task.image_path} className="w-10 h-10" /></td>
-                                                <td className="px-6 py-3">{task.name}</td>
-                                                <td className="px-6 py-3">{task.project.name}</td>
+                                                <td className="px-6 py-3">
+                                                    <Link className="text-white hover:underline" href={route('tasks.show', task.id)}>{task.name}</Link>
+                                                </td>
+                                                <td className="px-6 py-3">
+                                                    <Link className="text-white hover:underline" href={route('projects.show', task.project.id)}>{task.project.name}</Link>
+                                                </td>
                                                 <td className="px-6 py-3">
                                                     <span className={"px-2 py-1 text-white rounded " + TASK_STATUS_CLASS_MAP[task.status]}>{TASK_STATUS_TEXT_MAP[task.status]}</span>
                                                 </td>
