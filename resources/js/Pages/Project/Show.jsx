@@ -5,7 +5,7 @@ import TableHeadings from '@/Components/TableHeadings';
 import TextInput from '@/Components/TextInput';
 import SelectInput from '@/Components/SelectInput';
 import Pagination from '@/Components/Pagination';
-export default function Show({project, auth, queryParams, tasks}) {
+export default function Show({project, auth, queryParams, tasks, success}) {
     queryParams = queryParams || {};
     project = project['data'];
     queryParams['project'] = project.id;
@@ -25,6 +25,12 @@ export default function Show({project, auth, queryParams, tasks}) {
             searchFieldChanged(name, event.target.value);
         }
     }
+
+    const deleteTask = (id) => {
+        if (confirm('Are you sure you want to delete this task?')) {
+            router.delete(route('tasks.destroy', id) + '?project_id=' + project.id);
+        }
+    };
     return (
         <AuthenticatedLayout
             header={
@@ -38,6 +44,7 @@ export default function Show({project, auth, queryParams, tasks}) {
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+                        {success && <div className="px-6 py-4 text-white bg-green-700">{success}</div>}
                         <div>
                             <img className="object-cover w-full h-72" src={project.image_path} alt="Project Image" />
                         </div>
@@ -111,6 +118,7 @@ export default function Show({project, auth, queryParams, tasks}) {
                                         <TableHeadings page="projects" uri={'show'} name="created_at" queryParams={queryParams} sortable={true}>Created At</TableHeadings>
                                         <TableHeadings page="projects" uri={'show'} name="due_date" queryParams={queryParams} sortable={true}>Due Date</TableHeadings>
                                         <TableHeadings page="projects" uri={'show'} name="created_by" queryParams={queryParams} sortable={true}>Created By</TableHeadings>
+                                        <TableHeadings page="projects" uri={'show'} name="created_by" queryParams={queryParams} sortable={true}>Assigned User</TableHeadings>
                                         <TableHeadings page="projects" uri={'show'}>Action</TableHeadings>
                                     </tr>
                                 </thead>
@@ -133,6 +141,7 @@ export default function Show({project, auth, queryParams, tasks}) {
                                         <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3"></th>
+                                        <th scope="col" className="px-6 py-3"></th>
                                         <th scope="col" className="px-6 py-3">
                                             <Link href={route('tasks.create') + '?project=' + project.id} className="mr-2 font-medium text-green-600 capitalize dark:text-green-500 hover:underline">Add Task</Link>
                                         </th>
@@ -143,7 +152,7 @@ export default function Show({project, auth, queryParams, tasks}) {
                                         return (
                                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={task.id}>
                                                 <th className="px-6 py-3">{task.id}</th>
-                                                <td className="px-6 py-3"><img src={task.image} className="w-10 h-10" /></td>
+                                                <td className="px-6 py-3"><img src={task.image_path} className="w-10 h-10" /></td>
                                                 <td className="px-6 py-3">{task.name}</td>
                                                 <td className="px-6 py-3">
                                                     <span className={"px-2 py-1 text-white rounded " + TASK_STATUS_CLASS_MAP[task.status]}>{TASK_STATUS_TEXT_MAP[task.status]}</span>
@@ -152,9 +161,10 @@ export default function Show({project, auth, queryParams, tasks}) {
                                                 <td className="px-6 py-3 text-nowrap">{task.created_at}</td>
                                                 <td className="px-6 py-3 text-nowrap">{task.due_date}</td>
                                                 <td className="px-6 py-3">{task.created_by.name}</td>
+                                                <td className="px-6 py-3">{task.assigned_user.name}</td>
                                                 <td className="px-6 py-3">
-                                                    <Link href={route('tasks.edit', task.id)} className="mr-2 font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</Link>
-                                                    <Link href={route('tasks.destroy', task.id)} className="mr-2 font-medium text-red-600 dark:text-red-500 hover:underline">Delete</Link>
+                                                    <Link href={route('tasks.edit', task.id) + '?project_id=' + project.id} className="mr-2 font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</Link>
+                                                    <button onClick={() => deleteTask(task.id)} className="mr-2 font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
                                                 </td>
                                             </tr>
                                         );

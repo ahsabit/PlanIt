@@ -38,6 +38,7 @@ class TaskController extends Controller
         return Inertia::render('Task/Index', [
             'tasks' => TaskResource::collection($tasks),
             'queryParams' => request()->query() ?: null,
+            'success' => session('success') ?: null
         ]);
     }
 
@@ -46,7 +47,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        $projectId = request('project') ?? null;
+        $projectId = request('project') ?: null;
         return Inertia::render('Task/Create', [
             'project_id' => $projectId
         ]);
@@ -58,7 +59,7 @@ class TaskController extends Controller
     public function store(StoreTaskRequest $request)
     {
         $data = $request->validated();
-        $image = $data['image'] ?? null;
+        $image = $data['image'] ?: null;
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
         if($image){
@@ -69,7 +70,7 @@ class TaskController extends Controller
         unset($data['image']);
         Task::create($data);
 
-        return redirect()->route('tasks.index')->with('success', 'Task created successfully');
+        return redirect()->route('projects.show', $data['project_id'])->with('success', 'Task created successfully');
     }
 
     /**
@@ -77,7 +78,7 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        //
+        //not required
     }
 
     /**
@@ -85,7 +86,15 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        //
+        if (request('project_id')) {
+            $isProject = request('project_id') == $task->project_id ? TRUE : FALSE;
+        }else{
+            $isProject = FALSE;
+        }
+        return Inertia::render('Task/Edit', [
+            'task' => new TaskResource($task),
+            'is_project' => $isProject
+        ]);
     }
 
     /**
@@ -93,7 +102,30 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        //
+        $data = $request->validated();
+        $isProject = $data['is_project'];
+        $image = $data['image'] ?? null;
+        $data['updated_by'] = Auth::id();
+
+        if ($image) {
+            if (Storage::disk('public')->exists($task->image_path)) {
+                $dirName = dirname($task->image_path);
+                Storage::disk('public')->delete($task->image_path);
+                if ($dirName) {
+                    Storage::disk('public')->deleteDirectory($dirName);
+                }
+            }
+            $data['image_path'] = $image->store('tasks/' . Str::random(16), 'public');
+        } else {
+            $data['image_path'] = $task->image_path;
+        }
+        $task->update($data);
+
+        if ($isProject == TRUE) {
+            return redirect()->route('projects.show', $data['project_id'])->with('success', 'Task updated successfully');
+        }else{
+            return redirect()->route('tasks.index')->with('success', 'Task updated successfully');
+        }
     }
 
     /**
@@ -102,6 +134,7 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         $name = $task->name;
+        $projectId = $task->project_id;
         if($task->image_path){
             if (Storage::disk('public')->exists($task->image_path)) {
                 $dirName = dirname($task->image_path);
@@ -112,6 +145,15 @@ class TaskController extends Controller
             }
         }
         $task->delete();
-        return redirect()->route('tasks.index')->with('success', 'Task "'.$name.'" deleted successfully');
+
+        if (request('project_id')) {
+            if (request('project_id') == $projectId) {
+                return redirect()->route('projects.show', $projectId)->with('success', 'Task "'.$name.'" deleted successfully');
+            }else{
+                return redirect()->route('tasks.index')->with('success', 'Task "'.$name.'" deleted successfully');
+            }
+        }else{
+            return redirect()->route('tasks.index')->with('success', 'Task "'.$name.'" deleted successfully');
+        }
     }
 }

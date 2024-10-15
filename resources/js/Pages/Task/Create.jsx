@@ -123,21 +123,6 @@ export default function Create({ project_id }) {
                                     <InputError message={errors.assigned_user_id} className="mt-2" />
                                 </div>
                                 <div className="mt-4">
-                                    <InputLabel htmlFor="project_id" value="Project ID" />
-
-                                    <TextInput
-                                        id="project_id"
-                                        type="number"
-                                        name="project_id"
-                                        value={data.project_id}
-                                        className="block w-full mt-1"
-                                        onChange={(e) => setData('project_id', e.target.value)}
-                                        required
-                                    />
-
-                                    <InputError message={errors.project_id} className="mt-2" />
-                                </div>
-                                <div className="mt-4">
                                     <InputLabel htmlFor="description" value="Description" />
 
                                     <TextAreaInput className="block w-full mt-1" id="description" name="description" value={data.description} onChange={(e) => setData('description', e.target.value)} required></TextAreaInput>

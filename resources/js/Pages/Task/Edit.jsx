@@ -6,15 +6,18 @@ import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Edit({ task}) {
+export default function Edit({ task, is_project }) {
     task = task['data'];
     const { data, setData, post, reset, errors } = useForm({
-        image: '',
-        image_path: task.image_path ||'',
-        name: task.name ||'',
-        status: task.status ||'',
-        description: task.description ||'',
-        due_date: task.due_date ||'',
+        'name': task.name || '',
+        'description': task.description || '',
+        'due_date': task.due_date || '',
+        'status': task.status || '',
+        'image': task.image || '',
+        'priority' : task.priority || '',
+        'assigned_user_id': task.assigned_user.id || '',
+        'project_id': task.project.id,
+        'is_project': is_project,
         _method: 'PUT',
     });
 
@@ -45,7 +48,7 @@ export default function Edit({ task}) {
                                         id="image"
                                         type="file"
                                         name="image"
-                                        className="mt-1 block w-full"
+                                        className="block w-full mt-1"
                                         onChange={(e) => setData('image', e.target.files[0])}
                                     />
 
@@ -59,7 +62,7 @@ export default function Edit({ task}) {
                                         type="text"
                                         name="name"
                                         value={data.name}
-                                        className="mt-1 block w-full"
+                                        className="block w-full mt-1"
                                         onChange={(e) => setData('name', e.target.value)}
                                         isFocused={true}
                                         required
@@ -79,6 +82,17 @@ export default function Edit({ task}) {
                                     <InputError message={errors.status} className="mt-2" />
                                 </div>
                                 <div className="mt-4">
+                                    <InputLabel htmlFor="priority" value="Priority" />
+
+                                    <SelectInput name="priority" value={data.priority} onChange={(e) => setData('priority', e.target.value)} required>
+                                        <option value="">Select Status</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </SelectInput>
+                                    <InputError message={errors.status} className="mt-2" />
+                                </div>
+                                <div className="mt-4">
                                     <InputLabel htmlFor="due_date" value="Task Deadline" />
 
                                     <TextInput
@@ -86,7 +100,7 @@ export default function Edit({ task}) {
                                         type="date"
                                         name="due_date"
                                         value={data.due_date}
-                                        className="mt-1 block w-full"
+                                        className="block w-full mt-1"
                                         onChange={(e) => setData('due_date', e.target.value)}
                                         required
                                     />
@@ -94,16 +108,46 @@ export default function Edit({ task}) {
                                     <InputError message={errors.due_date} className="mt-2" />
                                 </div>
                                 <div className="mt-4">
+                                    <InputLabel htmlFor="assigned_user_id" value="Assigned User ID" />
+
+                                    <TextInput
+                                        id="assigned_user_id"
+                                        type="number"
+                                        name="assigned_user_id"
+                                        value={data.assigned_user_id}
+                                        className="block w-full mt-1"
+                                        onChange={(e) => setData('assigned_user_id', e.target.value)}
+                                        required
+                                    />
+
+                                    <InputError message={errors.assigned_user_id} className="mt-2" />
+                                </div>
+                                <div className="mt-4">
+                                    <InputLabel htmlFor="project_id" value="Project ID" />
+
+                                    <TextInput
+                                        id="project_id"
+                                        type="number"
+                                        name="project_id"
+                                        value={data.project_id}
+                                        className="block w-full mt-1"
+                                        onChange={(e) => setData('project_id', e.target.value)}
+                                        required
+                                    />
+
+                                    <InputError message={errors.project_id} className="mt-2" />
+                                </div>
+                                <div className="mt-4">
                                     <InputLabel htmlFor="description" value="Description" />
 
-                                    <TextAreaInput className="mt-1 block w-full" id="description" name="description" value={data.description} onChange={(e) => setData('description', e.target.value)} required></TextAreaInput>
+                                    <TextAreaInput className="block w-full mt-1" id="description" name="description" value={data.description} onChange={(e) => setData('description', e.target.value)} required></TextAreaInput>
 
                                     <InputError message={errors.description} className="mt-2" />
                                 </div>
                                 <div className="flex justify-end">
                                     <TextInput type="submit" value="Update" className="mt-4 py-2 px-4 mr-1 !bg-green-800" />
                                     <TextInput type="button" onClick={() => reset()} value="Reset" className="mt-4 py-2 px-4 ml-1 !bg-red-800" />
-                                    <Link href={route("tasks.index")} className="mt-4 py-2 px-4 ml-1 bg-blue-800 rounded-md">Cancel</Link>
+                                    <Link href={route("tasks.index")} className="px-4 py-2 mt-4 ml-1 bg-blue-800 rounded-md">Cancel</Link>
                                 </div>
                             </form>
                         </div>

@@ -98,6 +98,7 @@ class ProjectController extends Controller
             'project' => new ProjectResource($project),
             'tasks' => TaskResource::collection($tasks),
             'queryParams' => request()->query() ?: null,
+            'success' => session('success') ?? null
         ]);
     }
 
@@ -151,7 +152,18 @@ class ProjectController extends Controller
                 }
             }
         }
-        $project->tasks()->delete();
+        foreach ($project->tasks as $task) {
+            if($task->image_path){
+                if (Storage::disk('public')->exists($task->image_path)) {
+                    $dirName = dirname($task->image_path);
+                    Storage::disk('public')->delete($task->image_path);
+                    if ($dirName) {
+                        Storage::disk('public')->deleteDirectory($dirName);
+                    }
+                }
+            }
+            $task->delete();
+        }
         $project->delete();
         return redirect()->route('projects.index')->with('success', 'Project "'.$name.'" deleted successfully');
     }
